@@ -35,13 +35,25 @@ class UserSeeder extends Seeder
                 'role' => 'manager',
                 'email_verified_at' => now(),
             ],
+
+            [
+                'name' => 'User',
+                'email' => 'user@test.com',
+                'password' => bcrypt('password'),
+                'email_verified_at' => now(),
+            ],
         ];
 
         foreach ($users as $user) {
-            $roleName = $user['role'];
-            unset($user['role']);
+            if (isset($user['role'])) {
+                $roleName = $user['role'];
+                unset($user['role']);
+            }
             $user = User::firstOrCreate(['email' => $user['email']], $user);
-            $user->assignRole($roleName);
+
+            if (isset($roleName)) {
+                $user->assignRole($roleName);
+            }
         }
     }
 }
