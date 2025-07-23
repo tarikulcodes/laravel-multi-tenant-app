@@ -16,9 +16,10 @@ class UserController extends Controller
     public function index()
     {
         $queryParams = request()->only(['search', 'page', 'per_page', 'sort_by', 'sort_dir']) + ['page' => 1, 'per_page' => 10, 'sort_by' => 'id', 'sort_dir' => 'desc'];
-        $users = User::query()
+        $users = User::with('roles')
             ->when(request()->has('search'), function ($query) {
-                $query->where('name', 'like', '%' . request()->input('search') . '%');
+                $query->where('name', 'like', '%' . request()->input('search') . '%')
+                    ->orWhere('email', 'like', '%' . request()->input('search') . '%');
             })
             ->orderBy($queryParams['sort_by'], $queryParams['sort_dir'])
             ->paginate($queryParams['per_page'])

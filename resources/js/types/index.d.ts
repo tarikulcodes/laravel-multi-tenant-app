@@ -39,7 +39,15 @@ export interface User {
     email_verified_at: string | null;
     created_at: string;
     updated_at: string;
+    roles?: Role[];
     [key: string]: unknown; // This allows for additional properties...
+}
+
+export interface Role {
+    id: number;
+    name: string;
+    text: string;
+    description: string | null;
 }
 
 export interface QueryParams {
@@ -78,4 +86,10 @@ export interface PaginatedData<T> {
     queryParams: QueryParams;
     meta: PaginationMeta;
     links: SimplePaginationLinks;
+}
+
+export interface BulkAction<T> {
+    label: string;
+    action: (selectedRows: T[]) => void;
+    variant?: 'default' | 'destructive';
 }
