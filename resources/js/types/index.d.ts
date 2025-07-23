@@ -41,3 +41,41 @@ export interface User {
     updated_at: string;
     [key: string]: unknown; // This allows for additional properties...
 }
+
+export interface QueryParams {
+    search?: string;
+    page?: number;
+    per_page?: number;
+    sort_by?: string | null;
+    sort_dir?: 'asc' | 'desc' | null;
+    [key: string]: unknown;
+}
+
+export interface PaginationMeta {
+    current_page: number;
+    from: number;
+    last_page: number;
+    per_page: number;
+    to: number;
+    total: number;
+    links: {
+        url: string | null;
+        label: string;
+        active: boolean;
+    }[];
+    [key: string]: unknown;
+}
+
+export interface SimplePaginationLinks {
+    first: string | null;
+    last: string | null;
+    next: string | null;
+    prev: string | null;
+}
+
+export interface PaginatedData<T> {
+    data: T[];
+    queryParams: QueryParams;
+    meta: PaginationMeta;
+    links: SimplePaginationLinks;
+}
