@@ -20,11 +20,11 @@ return [
     //     '127.0.0.1',
     // ],
 
-    'central_domains' => explode(',', env('CENTRAL_DOMAINS', 'localhost,127.0.0.1')),
+    'central_domains' => [env('CENTRAL_DOMAIN', 'localhost')],
 
     /**
      * Tenancy bootstrappers are executed when tenancy is initialized.
-     * Their responsibility is making Laravel features tenant-aware.
+     * Their responsibility is making Laravel features tenant-aware.1
      *
      * To configure their behavior, see the config keys below.
      */
