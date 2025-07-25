@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useDeleteConfirmation } from '@/hooks/use-delete-confirmation';
 import { useInitials } from '@/hooks/use-initials';
 import AdminLayout from '@/layouts/admin-layout';
 import { ROLE_OUTLINE_COLORS } from '@/lib/colors';
@@ -14,6 +15,10 @@ import { Ellipsis, Eye, Pencil, Trash } from 'lucide-react';
 
 const UsersIndex = ({ usersData, roles }: { usersData: PaginatedData<User>; roles: Role[] }) => {
     const initials = useInitials();
+
+    const { showDeleteConfirmation, DeleteConfirmationComponent } = useDeleteConfirmation<User>({
+        getDeleteUrl: (user) => route('admin.users.destroy', user.id),
+    });
 
     const columns: ColumnDef<User>[] = [
         {
@@ -106,11 +111,9 @@ const UsersIndex = ({ usersData, roles }: { usersData: PaginatedData<User>; role
                                     Edit
                                 </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem variant="destructive" asChild>
-                                <Link href={route('admin.users.destroy', row.original.id)}>
-                                    <Trash className="size-4" />
-                                    Delete
-                                </Link>
+                            <DropdownMenuItem variant="destructive" onSelect={() => showDeleteConfirmation(row.original)}>
+                                <Trash className="size-4" />
+                                Delete
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
@@ -146,6 +149,8 @@ const UsersIndex = ({ usersData, roles }: { usersData: PaginatedData<User>; role
                     }}
                 />
             </div>
+
+            <DeleteConfirmationComponent />
         </AdminLayout>
     );
 };
