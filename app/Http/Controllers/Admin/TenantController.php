@@ -74,9 +74,11 @@ class TenantController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Tenant $tenant)
     {
-        //
+        $tenant->delete();
+
+        return redirect()->route('admin.tenants.index')->with('success', 'Tenant deleted successfully');
     }
 
     public function bulkDelete(Request $request)
@@ -86,5 +88,7 @@ class TenantController extends Controller
         foreach ($tenants as $tenant) {
             $tenant->delete();
         }
+
+        return redirect()->route('admin.tenants.index')->with('success', 'Tenants deleted successfully');
     }
 }
