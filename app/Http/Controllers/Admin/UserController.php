@@ -102,6 +102,6 @@ class UserController extends Controller
 
         User::whereIn('id', $request->ids)->delete();
 
-        return redirect()->back()->with('success', 'Selected users have been deleted successfully.');
+        return back()->with('success', 'Selected user(s) have been deleted.');
     }
 }
