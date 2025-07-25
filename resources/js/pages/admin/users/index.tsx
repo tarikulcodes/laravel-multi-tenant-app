@@ -1,14 +1,20 @@
 import { DataTable } from '@/components/datatable';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useInitials } from '@/hooks/use-initials';
 import AdminLayout from '@/layouts/admin-layout';
 import { ROLE_OUTLINE_COLORS } from '@/lib/colors';
 import { cn } from '@/lib/utils';
 import { DropdownFilter, Role, type PaginatedData, type User } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
+import { Ellipsis, Eye, Pencil, Trash } from 'lucide-react';
 
 const UsersIndex = ({ usersData, roles }: { usersData: PaginatedData<User>; roles: Role[] }) => {
+    const initials = useInitials();
+
     const columns: ColumnDef<User>[] = [
         {
             accessorKey: 'id',
@@ -24,9 +30,9 @@ const UsersIndex = ({ usersData, roles }: { usersData: PaginatedData<User>; role
             enableSorting: false,
             cell: ({ row }) => {
                 return (
-                    <Avatar className="size-12">
+                    <Avatar className="size-10">
                         <AvatarImage src={row.original.avatar} />
-                        <AvatarFallback>{row.original.name.charAt(0)}</AvatarFallback>
+                        <AvatarFallback>{initials(row.original.name)}</AvatarFallback>
                     </Avatar>
                 );
             },
@@ -73,6 +79,43 @@ const UsersIndex = ({ usersData, roles }: { usersData: PaginatedData<User>; role
             accessorKey: 'updated_at',
             header: 'Updated At',
             enableSorting: true,
+        },
+
+        {
+            accessorKey: 'actions',
+            header: 'Actions',
+            enableSorting: false,
+            cell: ({ row }) => {
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                                <Ellipsis className="size-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent side="left" align="start">
+                            <DropdownMenuItem variant="default" asChild>
+                                <Link href={route('admin.users.show', row.original.id)}>
+                                    <Eye className="size-4" />
+                                    View
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem variant="default" asChild>
+                                <Link href={route('admin.users.edit', row.original.id)}>
+                                    <Pencil className="size-4" />
+                                    Edit
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem variant="destructive" asChild>
+                                <Link href={route('admin.users.destroy', row.original.id)}>
+                                    <Trash className="size-4" />
+                                    Delete
+                                </Link>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                );
+            },
         },
     ];
 
