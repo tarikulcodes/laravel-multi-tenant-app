@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\RoleResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -71,15 +72,27 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        //
+        $user->load('roles');
+        $roles = Role::all();
+
+        return Inertia::render('admin/users/edit', [
+            'user' => new UserResource($user),
+            'roles' => RoleResource::collection($roles),
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        //
+        $inputs = $request->validated();
+
+        $user->update($inputs);
+
+        $user->syncRoles($inputs['roles']);
+
+        return back()->with('success', 'User has been updated.');
     }
 
     /**

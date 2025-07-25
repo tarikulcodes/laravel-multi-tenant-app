@@ -1,4 +1,5 @@
 import { DataTable } from '@/components/datatable';
+import Heading from '@/components/heading';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -135,6 +136,8 @@ const UsersIndex = ({ usersData, roles }: { usersData: PaginatedData<User>; role
             <Head title="Users" />
 
             <div className="p-4">
+                <Heading title="Users" description="Manage your users with ease" />
+
                 <DataTable
                     tableKey="users"
                     data={usersData.data}
