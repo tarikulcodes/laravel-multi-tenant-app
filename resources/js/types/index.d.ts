@@ -108,3 +108,10 @@ export interface DropdownFilter {
     icon?: LucideIcon | IconType | null;
     options: { label: string; value: string | number }[];
 }
+
+export interface Tenant {
+    id: string;
+    name: string;
+    domains: string[];
+    created_at: string | null;
+}
