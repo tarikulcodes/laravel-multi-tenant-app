@@ -12,5 +12,5 @@ Route::prefix('admin')
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
         Route::delete('/users/bulk-delete', [UserController::class, 'bulkDelete'])->name('users.bulk-delete');
-        Route::resource('users', UserController::class);
+        Route::resource('users', UserController::class)->except(['show', 'create', 'store']);
     });

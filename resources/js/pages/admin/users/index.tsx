@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 import { DropdownFilter, Role, type PaginatedData, type User } from '@/types';
 import { Head, Link } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
-import { Ellipsis, Eye, Pencil, Trash } from 'lucide-react';
+import { Ellipsis, Pencil, Trash } from 'lucide-react';
 
 const UsersIndex = ({ usersData, roles }: { usersData: PaginatedData<User>; roles: Role[] }) => {
     const initials = useInitials();
@@ -100,12 +100,6 @@ const UsersIndex = ({ usersData, roles }: { usersData: PaginatedData<User>; role
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent side="left" align="start">
-                            <DropdownMenuItem variant="default" asChild>
-                                <Link href={route('admin.users.show', row.original.id)}>
-                                    <Eye className="size-4" />
-                                    View
-                                </Link>
-                            </DropdownMenuItem>
                             <DropdownMenuItem variant="default" asChild>
                                 <Link href={route('admin.users.edit', row.original.id)}>
                                     <Pencil className="size-4" />
