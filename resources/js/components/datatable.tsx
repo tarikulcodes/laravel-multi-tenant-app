@@ -1,7 +1,7 @@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useColumnVisibility } from '@/hooks/use-column-visibility';
-import { BulkAction, PaginatedData } from '@/types';
+import { BulkAction, DropdownFilter, PaginatedData } from '@/types';
 import { Column, ColumnDef, flexRender, getCoreRowModel, getPaginationRowModel, useReactTable } from '@tanstack/react-table';
 import { DataTableColumnHeader } from './datatable-column-header';
 import { DataTablePagination } from './datatable-pagination';
@@ -23,6 +23,7 @@ interface DataTableProps<TData, TValue> {
         description?: string;
     };
     activeBulkActions?: boolean;
+    dropdownFilters?: DropdownFilter[];
     tableKey?: string; // New prop for identifying the table for localStorage
 }
 
@@ -34,6 +35,7 @@ export function DataTable<TData, TValue>({
     bulkDelete,
     activeBulkActions = false,
     tableKey = 'default', // Default key if not provided
+    dropdownFilters,
 }: DataTableProps<TData, TValue>) {
     // Initialize column visibility hook
     const { columnVisibility, setColumnVisibility, resetColumnVisibility } = useColumnVisibility(tableKey);
@@ -109,6 +111,7 @@ export function DataTable<TData, TValue>({
                     activeBulkActions={activeBulkActions}
                     bulkDelete={bulkDelete}
                     resetColumnVisibility={resetColumnVisibility}
+                    dropdownFilters={dropdownFilters}
                 />
             )}
             <div className="rounded-md border">

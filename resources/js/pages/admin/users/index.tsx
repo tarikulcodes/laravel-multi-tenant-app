@@ -4,11 +4,11 @@ import { Badge } from '@/components/ui/badge';
 import AdminLayout from '@/layouts/admin-layout';
 import { ROLE_OUTLINE_COLORS } from '@/lib/colors';
 import { cn } from '@/lib/utils';
-import { type PaginatedData, type User } from '@/types';
+import { DropdownFilter, Role, type PaginatedData, type User } from '@/types';
 import { Head } from '@inertiajs/react';
 import { ColumnDef } from '@tanstack/react-table';
 
-const UsersIndex = ({ usersData }: { usersData: PaginatedData<User> }) => {
+const UsersIndex = ({ usersData, roles }: { usersData: PaginatedData<User>; roles: Role[] }) => {
     const columns: ColumnDef<User>[] = [
         {
             accessorKey: 'id',
@@ -75,12 +75,33 @@ const UsersIndex = ({ usersData }: { usersData: PaginatedData<User> }) => {
             enableSorting: true,
         },
     ];
+
+    const dropdownFilters: DropdownFilter[] = [
+        {
+            accessorKey: 'filter_by_role',
+            label: 'Roles',
+            options: [{ label: 'All', value: '' }, ...(roles?.map((role) => ({ label: role.text, value: role.name })) || [])],
+        },
+    ];
+
     return (
         <AdminLayout breadcrumbs={[{ title: 'Users', href: '/admin/users' }]}>
             <Head title="Users" />
 
             <div className="p-4">
-                <DataTable data={usersData.data} columns={columns} paginatedData={usersData} />
+                <DataTable
+                    tableKey="users"
+                    data={usersData.data}
+                    columns={columns}
+                    paginatedData={usersData}
+                    dropdownFilters={dropdownFilters}
+                    activeBulkActions={true}
+                    bulkDelete={{
+                        route: route('admin.users.bulk-delete'),
+                        title: 'Delete Users',
+                        description: 'Are you sure you want to delete the selected users? This action cannot be undone.',
+                    }}
+                />
             </div>
         </AdminLayout>
     );

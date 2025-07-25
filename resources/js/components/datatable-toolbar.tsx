@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { BulkAction, PaginatedData } from '@/types';
+import { BulkAction, DropdownFilter, PaginatedData } from '@/types';
 import { router } from '@inertiajs/react';
 import { Table } from '@tanstack/react-table';
 import { ArrowLeftRight, ChevronDown, RotateCcw, Search, Trash2 } from 'lucide-react';
@@ -27,6 +27,7 @@ const DataTableToolbar = <TData,>({
     activeBulkActions = false,
     bulkDelete,
     resetColumnVisibility,
+    dropdownFilters,
 }: {
     table: Table<TData>;
     paginatedData: PaginatedData<TData>;
@@ -39,6 +40,7 @@ const DataTableToolbar = <TData,>({
         description?: string;
     };
     resetColumnVisibility?: () => void;
+    dropdownFilters?: DropdownFilter[];
 }) => {
     const { queryParams } = paginatedData;
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -81,8 +83,7 @@ const DataTableToolbar = <TData,>({
         allBulkActions.push({
             label: 'Delete selected',
             icon: Trash2,
-            className: 'text-destructive',
-            onClick: (selected) => {
+            action: (selected) => {
                 setSelectedItemsToDelete(selected);
                 setShowDeleteDialog(true);
             },
@@ -139,6 +140,47 @@ const DataTableToolbar = <TData,>({
                             )}
                         </DropdownMenuContent>
                     </DropdownMenu>
+
+                    {dropdownFilters &&
+                        dropdownFilters.length > 0 &&
+                        dropdownFilters.map((filter, idx) => (
+                            <DropdownMenu key={idx}>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline" className="ml-auto">
+                                        {filter.icon && <filter.icon className="size-4 text-inherit" />} {filter.label}{' '}
+                                        <ChevronDown className="size-4" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="start">
+                                    {filter.options.map((option, idx) => (
+                                        <DropdownMenuCheckboxItem
+                                            key={idx}
+                                            checked={
+                                                option.value === queryParams[filter.accessorKey] ||
+                                                (option.value === '' && !queryParams[filter.accessorKey])
+                                            }
+                                            onCheckedChange={(value) => {
+                                                if (value) {
+                                                    router.get(
+                                                        route(route().current() ?? ''),
+                                                        {
+                                                            ...queryParams,
+                                                            [filter.accessorKey]: option.value,
+                                                            page: 1,
+                                                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                                        } as Record<string, any>,
+                                                        { preserveScroll: true, preserveState: true, replace: true },
+                                                    );
+                                                }
+                                            }}
+                                        >
+                                            {option.label}
+                                        </DropdownMenuCheckboxItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        ))}
+
                     {activeBulkActions && allBulkActions.length > 0 && (
                         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
                             <DropdownMenuTrigger asChild>
@@ -150,10 +192,9 @@ const DataTableToolbar = <TData,>({
                                 {allBulkActions.map((action, idx) => (
                                     <DropdownMenuItem
                                         key={idx}
-                                        className={action.className}
                                         onSelect={() => {
                                             setDropdownOpen(false); // close dropdown
-                                            action.onClick(selectedRows); // open dialog
+                                            action.action(selectedRows); // open dialog
                                         }}
                                     >
                                         {action.icon && <action.icon className="size-4 text-inherit" />} {action.label}

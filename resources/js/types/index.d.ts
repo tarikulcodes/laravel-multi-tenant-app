@@ -1,4 +1,5 @@
 import { LucideIcon } from 'lucide-react';
+import { IconType } from 'react-icons';
 import type { Config } from 'ziggy-js';
 
 export interface Auth {
@@ -89,7 +90,15 @@ export interface PaginatedData<T> {
 }
 
 export interface BulkAction<T> {
+    icon?: LucideIcon | IconType | null;
     label: string;
     action: (selectedRows: T[]) => void;
     variant?: 'default' | 'destructive';
+}
+
+export interface DropdownFilter {
+    accessorKey: string;
+    label: string;
+    icon?: LucideIcon | IconType | null;
+    options: { label: string; value: string | number }[];
 }

@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\RoleResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Spatie\Permission\Models\Role;
 
 class UserController extends Controller
 {
@@ -15,20 +17,28 @@ class UserController extends Controller
      */
     public function index()
     {
-        $queryParams = request()->only(['search', 'page', 'per_page', 'sort_by', 'sort_dir']) + ['page' => 1, 'per_page' => 10, 'sort_by' => 'id', 'sort_dir' => 'desc'];
+        $queryParams = request()->only(['search', 'page', 'per_page', 'sort_by', 'sort_dir', 'filter_by_role']) + ['page' => 1, 'per_page' => 10, 'sort_by' => 'id', 'sort_dir' => 'desc'];
         $users = User::with('roles')
             ->when(request()->has('search'), function ($query) {
                 $query->where('name', 'like', '%' . request()->input('search') . '%')
                     ->orWhere('email', 'like', '%' . request()->input('search') . '%');
             })
+            ->when(request()->has('filter_by_role') && $queryParams['filter_by_role'], function ($query) use ($queryParams) {
+                $query->whereHas('roles', function ($query) use ($queryParams) {
+                    $query->where('name', $queryParams['filter_by_role']);
+                });
+            })
             ->orderBy($queryParams['sort_by'], $queryParams['sort_dir'])
             ->paginate($queryParams['per_page'])
             ->withQueryString();
+
+        $roles = Role::all();
 
         return Inertia::render('admin/users/index', [
             'usersData' => UserResource::collection($users)->additional([
                 'queryParams' => $queryParams,
             ]),
+            'roles' => RoleResource::collection($roles),
         ]);
     }
 
@@ -78,5 +88,20 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         //
+    }
+
+    /**
+     * Bulk delete users.
+     */
+    public function bulkDelete(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:users,id',
+        ]);
+
+        User::whereIn('id', $request->ids)->delete();
+
+        return redirect()->back()->with('success', 'Selected users have been deleted successfully.');
     }
 }
