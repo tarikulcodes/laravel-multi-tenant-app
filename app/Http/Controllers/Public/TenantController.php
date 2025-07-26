@@ -39,7 +39,7 @@ class TenantController extends Controller
      */
     public function store(Request $request)
     {
-        $centralDomain = config('tenancy.central_domains')[0] ?? 'localhost';
+        // $centralDomain = config('tenancy.central_domains')[0] ?? 'localhost';
 
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
@@ -48,9 +48,9 @@ class TenantController extends Controller
                 'string',
                 'max:255',
                 'regex:/^[a-z0-9-]+$/',
-                'not_in:www,mail,ftp,admin,api,app',
-                Rule::unique('domains', 'domain')->where(function ($query) use ($centralDomain) {
-                    return $query->where('domain', 'like', "%.$centralDomain");
+                'not_in:www,mail,ftp,admin,api,app,tenant,central,master,localhost',
+                Rule::unique('domains', 'domain')->where(function ($query) {
+                    return $query->where('domain', 'like', "%");
                 }),
             ],
         ], [
@@ -66,7 +66,7 @@ class TenantController extends Controller
 
         // Create the domain for the tenant
         $tenant->domains()->create([
-            'domain' => $validated['subdomain'] . '.' . $centralDomain,
+            'domain' => $validated['subdomain'],
         ]);
 
         $user = request()->user();
@@ -83,7 +83,7 @@ class TenantController extends Controller
         tenancy()->end();
 
         return redirect()->route('register-tenant.create')
-            ->with('success', 'Tenant registered successfully! Your tenant is available at: ' . $validated['subdomain'] . '.' . $centralDomain);
+            ->with('success', 'Tenant registered successfully! Your tenant is available at: ' . $validated['subdomain']);
     }
 
     /**
