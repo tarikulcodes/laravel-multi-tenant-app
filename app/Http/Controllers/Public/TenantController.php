@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Public;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Admin\TenantResource;
 use App\Models\Tenant;
+use App\Models\TenantUser;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -73,16 +74,17 @@ class TenantController extends Controller
 
         tenancy()->initialize($tenant);
 
-        User::create([
+        TenantUser::create([
+            'global_id' => $user->global_id,
             'name' => $user->name,
             'email' => $user->email,
             'password' => $user->password,
-            'email_verified_at' => now(),
+            'email_verified_at' => $user->email_verified_at,
         ]);
 
         tenancy()->end();
 
-        return redirect()->route('register-tenant.create')
+        return to_route('register-tenant.create')
             ->with('success', 'Tenant registered successfully! Your tenant is available at: ' . $validated['subdomain']);
     }
 

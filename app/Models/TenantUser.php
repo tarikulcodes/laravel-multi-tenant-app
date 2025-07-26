@@ -2,39 +2,35 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
-use Stancl\Tenancy\Database\Concerns\CentralConnection;
 use Stancl\Tenancy\Database\Concerns\ResourceSyncing;
-use Stancl\Tenancy\Database\Models\TenantPivot;
-use Stancl\Tenancy\Contracts\SyncMaster;
+use Stancl\Tenancy\Contracts\Syncable;
 
-class User extends Authenticatable implements SyncMaster
+class TenantUser extends Authenticatable implements Syncable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasRoles, ResourceSyncing, CentralConnection;
+    use HasFactory, Notifiable, HasRoles, ResourceSyncing;
+
+    /**
+     * The table associated with the model.
+     */
+    protected $table = 'users';
 
     /**
      * The attributes that are mass assignable.
-     *
-     * @var list<string>
      */
     protected $fillable = [
         'global_id',
         'name',
         'email',
         'password',
-        'is_syncable',
+        'email_verified_at',
     ];
 
     /**
      * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
      */
     protected $hidden = [
         'password',
@@ -43,34 +39,13 @@ class User extends Authenticatable implements SyncMaster
 
     /**
      * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'is_syncable' => 'boolean',
         ];
-    }
-
-    /**
-     * Relationship to tenants where this user exists
-     * Only applies to syncable users
-     */
-    public function tenants(): BelongsToMany
-    {
-        return $this->belongsToMany(Tenant::class, 'tenant_users', 'global_user_id', 'tenant_id', 'global_id')
-            ->using(TenantPivot::class);
-    }
-
-    /**
-     * Get the tenant model name for syncing
-     */
-    public function getTenantModelName(): string
-    {
-        return TenantUser::class;
     }
 
     /**
@@ -94,12 +69,11 @@ class User extends Authenticatable implements SyncMaster
      */
     public function getCentralModelName(): string
     {
-        return static::class;
+        return User::class;
     }
 
     /**
      * Get the attribute names that should be synced across databases
-     * Only syncs for users where is_syncable = true
      */
     public function getSyncedAttributeNames(): array
     {

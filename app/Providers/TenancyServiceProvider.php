@@ -103,6 +103,11 @@ class TenancyServiceProvider extends ServiceProvider
         // $this->mapRoutes();
 
         $this->makeTenancyMiddlewareHighestPriority();
+
+        // Enable queueing for resource syncing in production
+        if (app()->environment('production')) {
+            \Stancl\Tenancy\Listeners\UpdateSyncedResource::$shouldQueue = true;
+        }
     }
 
     protected function bootEvents()
