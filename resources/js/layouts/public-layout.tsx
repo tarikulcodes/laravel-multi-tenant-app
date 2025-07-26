@@ -1,3 +1,4 @@
+import { useFlash } from '@/hooks/use-flash';
 import { type BreadcrumbItem } from '@/types';
 import { type ReactNode } from 'react';
 import PublicHeaderLayout from './public/public-header-layout';
@@ -7,8 +8,13 @@ interface AppLayoutProps {
     breadcrumbs?: BreadcrumbItem[];
 }
 
-export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => (
-    <PublicHeaderLayout breadcrumbs={breadcrumbs} {...props}>
-        {children}
-    </PublicHeaderLayout>
-);
+export default ({ children, breadcrumbs, ...props }: AppLayoutProps) => {
+    const { FlashToaster } = useFlash();
+
+    return (
+        <PublicHeaderLayout breadcrumbs={breadcrumbs} {...props}>
+            {children}
+            <FlashToaster />
+        </PublicHeaderLayout>
+    );
+};
